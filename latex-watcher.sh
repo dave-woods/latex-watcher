@@ -65,7 +65,7 @@ do
 	bibtex $BIB;
 	pdflatex $TEX;
 	((i++))
-	if (($i > $mod_count));
+	if [ "$do_git" = true ] && (($i > $mod_count));
 	then
 		git add .;
 		git commit -m "Auto-commit: stashing most recent changes.";
