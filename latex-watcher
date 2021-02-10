@@ -6,7 +6,8 @@ print_help() {
 	cat << EOF
 Usage: $SCRIPTNAME filename.tex
 Uses 'sleep-until-modified.sh' to watch a given LaTeX file, compiling it and its bibliography when the .tex file is modified.
-If the --git flag is used, the program will attempt to create a git commit every 10th modification. Use --git-immediate to create a commit at every modification.
+If the -g/--git flag is used, the program will attempt to create a git commit every 10th modification. Use -gg/--git-immediate to create a commit at every modification.
+If the -nc/--no-compile flag is used, the LaTeX and bibliography files will not be compiled. Useful in combination with -g when another program is compiling.
 EOF
 }
 
@@ -17,6 +18,7 @@ if ! type sleep-until-modified.sh &>/dev/null ; then
 fi
 
 do_git=false
+no_compile=false
 mod_count=9
 SLEEPER=sleep-until-modified.sh
 
@@ -29,14 +31,22 @@ while [[ "$1" == -* ]] ; do
 			;;
 		-g|--git)
 			do_git=true
+			echo "Will commit to git."
 			shift
-			break
+			# break
 			;;
 		-gg|--git-immediate)
 			do_git=true
+			echo "Will commit to git every save."
 			mod_count=0
 			shift
-			break
+			# break
+			;;
+		-nc|--no-compile)
+			no_compile=true
+			echo "Will not compile LaTeX files."
+			shift
+			# break
 			;;
 		*)
 			echo "Invalid parameter: '$1'"
@@ -62,14 +72,18 @@ echo "Watching $TEX for changes. Press Ctrl+C to stop."
 i=0
 while $SLEEPER $TEX;
 do
-	bibtex $BIB;
-	pdflatex $TEX;
+	if [ "$no_compile" = false ] ; then
+		echo "Compiling $BIB at $(date)..."
+		bibtex $BIB;
+		echo "Compiling $TEX at $(date)..."
+		pdflatex $TEX;
+	fi
 	((i++))
 	if [ "$do_git" = true ] && (($i > $mod_count));
 	then
 		git add .;
 		git commit -m "Auto-commit: stashing most recent changes.";
-		echo "Most recent changes have been committed, but not pushed.";
+		echo "Most recent changes were committed at $(date), but not pushed.";
 		((i = 0));
   fi
 done
