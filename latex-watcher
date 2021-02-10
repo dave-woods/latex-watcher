@@ -5,22 +5,22 @@ SCRIPTNAME=`basename "$0"`
 print_help() {
 	cat << EOF
 Usage: $SCRIPTNAME filename.tex
-Uses 'sleep-until-modified.sh' to watch a given LaTeX file, compiling it and its bibliography when the .tex file is modified.
+Uses 'sleep-until-modified' to watch a given LaTeX file, compiling it and its bibliography when the .tex file is modified.
 If the -g/--git flag is used, the program will attempt to create a git commit every 10th modification. Use -gg/--git-immediate to create a commit at every modification.
 If the -nc/--no-compile flag is used, the LaTeX and bibliography files will not be compiled. Useful in combination with -g when another program is compiling.
 EOF
 }
 
 # check dependencies
-if ! type sleep-until-modified.sh &>/dev/null ; then
-	echo "You are missing the sleep-until-modified.sh dependency. Find it at https://github.com/dave-woods/sleep-until-modified"
+if ! type sleep-until-modified &>/dev/null ; then
+	echo "You are missing the sleep-until-modified dependency. Find it at https://github.com/dave-woods/sleep-until-modified"
 	exit 1
 fi
 
 do_git=false
 no_compile=false
 mod_count=9
-SLEEPER=sleep-until-modified.sh
+SLEEPER=sleep-until-modified
 
 # parse_parameters:
 while [[ "$1" == -* ]] ; do
